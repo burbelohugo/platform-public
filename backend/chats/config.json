@@ -1,0 +1,36 @@
+{
+    "dev": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "ACTIVE_SPONSORS_TABLE": "platform-dev-chats-active-sponsors",
+        "USERS_TABLE": "platform-dev-users",
+        "HACKER_QUEUE_TABLE": "platform-dev-chats-hacker-queue",
+        "TWILIO_SECRET_NAME": "PLATFORM_TWILIO"
+    },
+
+
+    "stg": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "ACTIVE_SPONSORS_TABLE": "platform-stg-chats-active-sponsors",
+        "USERS_TABLE": "platform-stg-users",
+        "HACKER_QUEUE_TABLE": "platform-stg-chats-hacker-queue",
+        "TWILIO_SECRET_NAME": "PLATFORM_TWILIO"
+    },
+
+
+    "prd": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "ACTIVE_SPONSORS_TABLE": "platform-prd-chats-active-sponsors",
+        "USERS_TABLE": "platform-prd-users",
+        "HACKER_QUEUE_TABLE": "platform-prd-chats-hacker-queue",
+        "TWILIO_SECRET_NAME": "PLATFORM_TWILIO"
+    },
+
+
+    "test": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "ACTIVE_SPONSORS_TABLE": "platform-test-chats-active-sponsors",
+        "USERS_TABLE": "platform-test-users",
+        "HACKER_QUEUE_TABLE": "platform-test-chats-hacker-queue",
+        "TWILIO_SECRET_NAME": "PLATFORM_TWILIO"
+    }
+}

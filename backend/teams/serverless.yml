@@ -1,0 +1,170 @@
+frameworkVersion: '2'
+org: technica
+app: platform
+service: platform-teams
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  deploymentBucket:
+    name: platform-teams-${self:provider.stage}-layers-bucket
+  tags:
+    acl: hacker # default ACL is hacker, will be overrided if needed
+  environment:
+    SENTRY_DSN: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+    TEAMS_TABLE: ${file(./config.json):${self:provider.stage}.TEAMS_TABLE}
+    MEMBERSHIPS_TABLE: ${file(./config.json):${self:provider.stage}.MEMBERSHIPS_TABLE}
+    USERS_TABLE: ${file(./config.json):${self:provider.stage}.USERS_TABLE}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-restApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-rootResourceId
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+       - dynamodb:Query
+       - dynamodb:Scan
+       - dynamodb:GetItem
+       - dynamodb:PutItem
+       - dynamodb:UpdateItem
+       - dynamodb:DeleteItem
+       - dynamodb:BatchGetItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+
+
+functions:
+  create_team:
+    handler: handler.create_team
+    events:
+      - http: 
+          path: teams/create
+          method: post
+          cors: true
+  join_team:
+    handler: handler.join_team
+    events:
+      - http: 
+          path: teams/join
+          method: post
+          cors: true
+  leave_team:
+    handler: handler.leave_team
+    events:
+      - http: 
+          path: teams/leave
+          method: post
+          cors: true
+  get_users_for_team:
+    handler: handler.get_users_for_team
+    events:
+      - http: 
+          path: teams/members
+          method: get
+          cors: true
+  get_team_membership_for_user:
+    handler: handler.get_team_membership_for_user
+    events:
+      - http: 
+          path: teams/membership
+          method: get
+          cors: true
+  get_team:
+    handler: handler.get_team
+    events:
+      - http: 
+          path: teams
+          method: get
+          cors: true
+  # invite_to_team:
+  #   handler: handler.invite_to_team
+  #   events:
+  #     - http: 
+  #         path: teams/invite
+  #         method: post
+  #         cors: true
+
+  # get_team_invites:
+  #   handler: handler.get_team_invites
+  #   events:
+  #     - http: 
+  #         path: teams/invites
+  #         method: get
+  #         cors: true
+  # get_hackers_invited_to_team:
+  #   handler: handler.get_hackers_invited_to_team
+  #   events:
+  #     - http: 
+  #         path: teams/team-invites
+  #         method: get
+  #         cors: true
+
+  # add_zoom_link_for_team:
+  #   handler: handler.add_zoom_link_for_team
+  #   events:
+  #     - http:
+  #         path: teams/zoom-link
+  #         method: post
+  #         cors: true
+  get_team_submission:
+    handler: handler.get_team_submission
+    events:
+      - http: 
+          path: teams/submission
+          method: get
+          cors: true
+  update_team_submission:
+    handler: handler.update_team_submission
+    events:
+      - http: 
+          path: teams/submission
+          method: post
+          cors: true
+  # delete_team_invite:
+  #   handler: handler.delete_team_invite
+  #   events:
+  #     - http: 
+  #         path: teams/delete-invite
+  #         method: post
+  #         cors: true
+
+resources:
+  Resources:
+    membershipsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.MEMBERSHIPS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    teamsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.TEAMS_TABLE}
+        AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-sentry
+  - serverless-jest-plugin
+  - serverless-layers
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+  # see https://github.com/nordcloud/serverless-jest-plugin
+  jest:
+    collectCoverage: true
+  serverless-layers:
+    dependenciesPath: ./package.json

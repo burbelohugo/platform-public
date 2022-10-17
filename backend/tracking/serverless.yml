@@ -1,0 +1,164 @@
+frameworkVersion: '2'
+org: technica
+app: platform
+service: platform-tracking
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  timeout: 15
+  deploymentBucket:
+    name: platform-tracking-${self:provider.stage}-layers-bucket
+  tags:
+    acl: organizer # default ACL is organizer, will be overrided if needed
+  environment:
+    SENTRY_DSN: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+    STAGE: ${self:provider.stage}
+    USER_STATUS_TABLE: ${file(./config.json):${self:provider.stage}.USER_STATUS_TABLE}
+    USER_ATTENDANCE_TABLE: ${file(./config.json):${self:provider.stage}.USER_ATTENDANCE_TABLE}
+    TRACKED_EVENTS_TABLE: ${file(./config.json):${self:provider.stage}.TRACKED_EVENTS_TABLE}
+    TRACKING_NOTES_TABLE: ${file(./config.json):${self:provider.stage}.TRACKING_NOTES_TABLE}
+    LIVE_COUNT_TABLE: ${file(./config.json):${self:provider.stage}.LIVE_COUNT_TABLE}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-restApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-rootResourceId
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - secretsmanager:DescribeSecret
+        - secretsmanager:GetSecretValue
+      Resource: "arn:aws:secretsmanager:us-east-1:*"
+
+functions:
+  status:
+    handler: handler.status
+    description: Update a users status in the user status table
+    events:
+      - http:
+          path: tracking/status
+          method: post
+          cors: true
+    tags:
+      acl: admin   
+  add_user_note:
+    handler: handler.add_user_note
+    description: Adds a note under a specified user
+    events:
+      - http:
+          path: tracking/notes
+          method: post
+          cors: true
+    tags:
+      acl: admin
+  get_user_notes:
+    handler: handler.get_user_notes
+    description: Gets all note under a specified user
+    events:
+      - http:
+          path: tracking/notes
+          method: get
+          cors: true
+    tags:
+      acl: admin     
+  get_attendance:
+    handler: handler.get_attendance
+    description: Get event attendance for a user
+    events:
+      - http:
+          path: tracking/attendance/get
+          method: get
+          cors: true
+  attendance:
+    handler: handler.attendance
+    description: Track event attendance for a user
+    events:
+      - http:
+          path: tracking/attendance
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    userStatusTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.USER_STATUS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    userAttendanceTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.USER_ATTENDANCE_TABLE}
+        AttributeDefinitions:
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    hackerTrackingTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.TRACKED_EVENTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    trackingNotesTable:
+      Type: AWS::DynamoDB::Table
+      Properties: 
+        TableName:  ${file(./config.json):${self:provider.stage}.TRACKING_NOTES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    liveCountTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.LIVE_COUNT_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-sentry
+  - serverless-jest-plugin
+  - serverless-layers
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+  # see https://github.com/nordcloud/serverless-jest-plugin
+  jest:
+    collectCoverage: true
+  serverless-layers:
+    dependenciesPath: ./package.json

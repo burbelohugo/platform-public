@@ -1,0 +1,283 @@
+frameworkVersion: '2'
+org: technica
+app: platform
+service: platform-schedule
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  deploymentBucket:
+    name: platform-schedule-${self:provider.stage}-layers-bucket
+  tags:
+    acl: hacker # default ACL is hacker, will be overrided if needed
+  environment:
+    SCHEDULE_TABLE: ${file(./config.json):${self:provider.stage}.SCHEDULE_TABLE}
+    USER_EVENTS_TABLE: ${file(./config.json):${self:provider.stage}.USER_EVENTS_TABLE}
+    SHORTLINKS_TABLE: ${file(./config.json):${self:provider.stage}.SHORTLINKS_TABLE}
+    SHORTLINK_CLICKS_TABLE: ${file(./config.json):${self:provider.stage}.SHORTLINK_CLICKS_TABLE}
+    ZOOM_API_EMAIL_ACCOUNT: ${file(./config.json):${self:provider.stage}.ZOOM_API_EMAIL_ACCOUNT}
+    ZOOM_LINK_TABLE: ${file(./config.json):${self:provider.stage}.ZOOM_LINK_TABLE}
+    ZOOM_API_KEY_SECRET_NAME: ${file(./config.json):${self:provider.stage}.ZOOM_API_KEY_SECRET_NAME}
+    STAGE: ${self:provider.stage}
+    PLATFORM_BASE_URL: ${file(./config.json):${self:provider.stage}.PLATFORM_BASE_URL}
+    ZOOM_API_KEYS_TABLE: ${file(./config.json):${self:provider.stage}.ZOOM_API_KEYS_TABLE}
+    ACHIEVEMENTS_TABLE: ${file(./config.json):${self:provider.stage}.ACHIEVEMENTS_TABLE}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-restApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-rootResourceId
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+       - dynamodb:Query
+       - dynamodb:Scan
+       - dynamodb:GetItem
+       - dynamodb:PutItem
+       - dynamodb:UpdateItem
+       - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - secretsmanager:DescribeSecret
+        - secretsmanager:GetSecretValue
+      Resource: "arn:aws:secretsmanager:us-east-1:*"
+
+functions:
+  random_gatherround:
+    handler: handler.random_gatherround
+    description: Update a users status in the user status table
+    events:
+      - http:
+          path: speed-chat/link
+          method: get
+          cors: true
+  get_schedule:
+    handler: handler.get_schedule
+    description: Retrieves all schedule data from database
+    events:
+      - http: 
+          path: schedule
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            ttlInSeconds: 60 # schedule will "update" every minute
+  get_event:
+    handler: handler.get_event
+    description: Retrieves single schedule event from database
+    events:
+      - http: 
+          path: schedule/event
+          method: get
+          cors: true
+  get_popular_events:
+    handler: handler.get_popular_events
+    description: Retrieves all popular events from database
+    events:
+      - http: 
+          path: schedule/event/popular
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            ttlInSeconds: 300 # schedule will "update" every minute
+  add_event:
+    handler: handler.add_event
+    description: Adds a new schedule event to the database
+    events:
+      - http: 
+          path: schedule/event
+          method: post
+          cors: true
+    tags:
+      acl: organizer
+  update_event:
+    handler: handler.update_event
+    description: Updates an existing schedule event to the database
+    events:
+      - http: 
+          path: schedule/event/update
+          method: post
+          cors: true
+    tags:
+      acl: organizer
+  delete_event_from_schedule:
+    handler: handler.delete_event_from_schedule
+    description: Deletes an existing schedule event from the database
+    events:
+      - http:
+          path: schedule/event/delete
+          method: post
+          cors: true
+    tags:
+      acl: organizer
+  get_event_by_shortlink:
+    handler: handler.get_event_by_shortlink
+    description: Retrieves the event associated with a given shortlink
+    events:
+      - http:
+          path: schedule/event/shortlink
+          method: get
+          cors: true
+  add_event_to_user_list:
+    handler: handler.add_event_to_user_list
+    description: Adds a new schedule event to a user's list
+    events:
+      - http: 
+          path: schedule/user/event
+          method: post
+          cors: true
+  get_events_from_user_list:
+    handler: handler.get_events_from_user_list
+    description: Retrieves all schedule events added to the user's list
+    events:
+      - http:
+          path: schedule/user/event
+          method: get
+          cors: true
+  delete_event_from_user_list:
+    handler: handler.delete_event_from_user_list
+    description: Deletes a schedule event from a user's list
+    events:
+      - http:
+          path: schedule/user/events/delete
+          method: post
+          cors: true
+  get_user_shortlink_clicks:
+    handler: handler.get_user_shortlink_clicks
+    description: Retrieves all shortlink clicks for a particular user
+    events:
+      - http:
+          path: schedule/user/shortlink
+          method: get
+          cors: true
+  add_shortlink_click:
+    handler: handler.add_shortlink_click
+    description: Adds a shortlink click event to the database
+    events:
+      - http:
+          path: schedule/user/shortlink
+          method: post
+          cors: true
+  add_shortlink:
+    handler: handler.add_shortlink
+    description: Adds a unique shortlink to the database
+    events:
+      - http:
+          path: schedule/shortlink
+          method: post
+          cors: true
+    tags:
+      acl: organizer
+  get_shortlink:
+    handler: handler.get_shortlink
+    description: Gets a shortlink from the database
+    events:
+      - http:
+          path: schedule/shortlink
+          method: get
+          cors: true
+  create_zoom_meeting:
+    handler: handler.create_zoom_meeting
+    description: Gets a zoom meeting and adds to database
+    events:
+      - http:
+          path: schedule/zoom_meeting
+          method: post
+          cors: true
+    tags:
+      acl: organizer
+package:
+  exclude:
+    node_modules/**
+
+resources:
+  Resources:
+    scheduleTable: 
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.SCHEDULE_TABLE}
+        AttributeDefinitions: 
+          - AttributeName: id
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    shortlinkTable: 
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.SHORTLINKS_TABLE}
+        AttributeDefinitions: 
+          - AttributeName: shortlinks
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: shortlinks
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    shortlinkClicksTable: 
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.SHORTLINK_CLICKS_TABLE}
+        AttributeDefinitions: 
+          - AttributeName: id
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    zoomMeetingsTable: 
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.ZOOM_LINK_TABLE}
+        AttributeDefinitions: 
+          - AttributeName: id
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    zoomApiKeysTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.ZOOM_API_KEYS_TABLE}
+        AttributeDefinitions: 
+          - AttributeName: key
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: key
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    userEventsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.USER_EVENTS_TABLE}
+        AttributeDefinitions: 
+          - AttributeName: id
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    
+
+plugins:
+  - serverless-sentry
+  - serverless-jest-plugin
+  - serverless-layers
+  - serverless-api-gateway-caching
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+  # see https://github.com/nordcloud/serverless-jest-plugin
+  jest:
+    collectCoverage: true
+  serverless-layers:
+    dependenciesPath: ./package.json
+  apiGatewayCaching:
+    enabled: true

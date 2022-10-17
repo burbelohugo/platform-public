@@ -1,0 +1,48 @@
+{
+  "name": "platform-2020",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "sls invoke test --stage test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gotechnica/platform-2020.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gotechnica/platform-2020/issues"
+  },
+  "homepage": "https://github.com/gotechnica/platform-2020#readme",
+  "dependencies": {
+    "@sentry/node": "^5.19.1",
+    "aws-sdk": "^2.691.0",
+    "axios": "^0.19.2",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5",
+    "serverless-api-gateway-caching": "^1.7.4",
+    "serverless-sentry-lib": "^2.0.1",
+    "uuid": "^8.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
+    "serverless-jest-plugin": "^0.3.0",
+    "serverless-layers": "^2.2.4",
+    "serverless-sentry": "^2.0.2"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}

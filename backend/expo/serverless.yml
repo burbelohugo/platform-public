@@ -1,0 +1,130 @@
+frameworkVersion: '2'
+org: technica
+app: platform
+service: platform-expo
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  deploymentBucket:
+    name: platform-expo-${self:provider.stage}-layers-bucket
+  tags:
+    acl: hacker # default ACL is hacker, will be overrided if needed
+  environment:
+    SENTRY_DSN: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+    SPONSORS_INFO_TABLE: ${file(./config.json):${self:provider.stage}.SPONSORS_INFO_TABLE}
+    SCHEDULE_TABLE: ${file(./config.json):${self:provider.stage}.SCHEDULE_TABLE}
+    EXPO_TABLE: ${file(./config.json):${self:provider.stage}.EXPO_TABLE}
+    DEVPOST_LINK_TABLE: ${file(./config.json):${self:provider.stage}.DEVPOST_LINK_TABLE}
+    MEMBERSHIPS_TABLE: ${file(./config.json):${self:provider.stage}.MEMBERSHIPS_TABLE}
+    SLACK_WEBHOOK_SECRET_NAME: ${file(./config.json):${self:provider.stage}.SLACK_WEBHOOK_SECRET_NAME}
+    USERS_TABLE: ${file(./config.json):${self:provider.stage}.USERS_TABLE}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-restApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-rootResourceId
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+       - dynamodb:Query
+       - dynamodb:Scan
+       - dynamodb:GetItem
+       - dynamodb:BatchWriteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - secretsmanager:DescribeSecret
+        - secretsmanager:GetSecretValue
+      Resource: "arn:aws:secretsmanager:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+      Resource:
+        - "arn:aws:s3:::*"
+
+functions:
+  createExpoSchedule:
+    handler: handler.createExpoSchedule
+    description: Creates the expo schedule
+    events:
+      - http: 
+          path: expo/schedule
+          method: post
+          cors: true
+    tags:
+      acl: admin
+  getExpoSchedule:
+    handler: handler.getExpoSchedule
+    description: Gets the full expo schedule for the event
+    events:
+      - http:
+          path: expo/schedule
+          method: get
+          cors: true
+          caching:
+            enabled: true
+  getExpoScheduleUser:
+    handler: handler.getExpoScheduleUser
+    description: Gets the expo schedule for a user
+    events:
+      - http:
+          path: expo/schedule/user
+          method: get
+          cors: true
+          caching:
+            enabled: true
+  getExpoScheduleSponsor:
+    handler: handler.getExpoScheduleSponsor
+    description: Gets the expo schedule for a sponsor
+    events:
+      - http:
+          path: expo/schedule/sponsor
+          method: get
+          cors: true
+          caching:
+            enabled: true
+  sendExpoScheduleSlack:
+    handler: handler.sendExpoScheduleSlack
+    description: Sends slack messages with expo schedule.  This should only be run locally
+    events:
+      - http:
+          path: expo/notify
+          method: post
+          cors: true
+    tags:
+      acl: admin
+
+resources:
+  Resources:
+    expoTable: 
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.EXPO_TABLE}
+        AttributeDefinitions: 
+          - AttributeName: id
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-sentry
+  - serverless-jest-plugin
+  - serverless-layers
+  - serverless-api-gateway-caching
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+  # see https://github.com/nordcloud/serverless-jest-plugin
+  jest:
+    collectCoverage: true
+  serverless-layers:
+    dependenciesPath: ./package.json
+  apiGatewayCaching:
+    enabled: true

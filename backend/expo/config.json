@@ -1,0 +1,48 @@
+{
+    "dev": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "SPONSORS_INFO_TABLE": "platform-dev-sponsorship-info",
+        "SCHEDULE_TABLE": "platform-dev-schedule",
+        "EXPO_TABLE": "platform-dev-expo-schedule",
+        "DEVPOST_LINK_TABLE": "platform-dev-project-submissions",
+        "MEMBERSHIPS_TABLE": "platform-dev-team-memberships",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "USERS_TABLE": "platform-dev-users"
+    },
+
+
+    "stg": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "SPONSORS_INFO_TABLE": "platform-stg-sponsorship-info",
+        "SCHEDULE_TABLE": "platform-stg-schedule",
+        "EXPO_TABLE": "platform-stg-expo-schedule",
+        "DEVPOST_LINK_TABLE": "platform-stg-project-submissions",
+        "MEMBERSHIPS_TABLE": "platform-stg-team-memberships",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "USERS_TABLE": "platform-stg-users"
+    },
+
+
+    "prd": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "SPONSORS_INFO_TABLE": "platform-prd-sponsorship-info",
+        "SCHEDULE_TABLE": "platform-prd-schedule",
+        "EXPO_TABLE": "platform-prd-expo-schedule",
+        "DEVPOST_LINK_TABLE": "platform-prd-teams",
+        "MEMBERSHIPS_TABLE": "platform-prd-team-memberships",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "USERS_TABLE": "platform-prd-users"
+    },
+
+
+    "test": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "SPONSORS_INFO_TABLE": "platform-test-sponsorship-info",
+        "SCHEDULE_TABLE": "platform-test-schedule",
+        "EXPO_TABLE": "platform-test-expo-schedule",
+        "DEVPOST_LINK_TABLE": "platform-test-project-submissions",
+        "MEMBERSHIPS_TABLE": "platform-test-team-memberships",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "USERS_TABLE": "platform-test-users"
+    }
+}

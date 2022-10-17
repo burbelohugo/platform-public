@@ -1,0 +1,51 @@
+service: submit
+app: submit
+org: gotechnica
+
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:BatchGetItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+
+functions:
+  hello:
+    handler: handler.create_project
+    events:
+      - http:
+          path: submit/create_project
+          method: post
+          cors: true
+  likes:
+    handler: handler.create_like
+    events:
+      - http:
+          path: submit/create_like
+          method: post
+          cors: true
+  get_projects:
+    handler: handler.get_projects
+    events:
+      - http:
+          path: submit/get_projects
+          method: get
+          cors: true
+  get_project:
+    handler: handler.get_project
+    events:
+      - http:
+          path: submit/get_project
+          method: get
+          cors: true

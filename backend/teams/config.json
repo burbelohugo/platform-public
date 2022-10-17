@@ -1,0 +1,32 @@
+{
+    "dev": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "TEAMS_TABLE": "platform-dev-teams",
+        "MEMBERSHIPS_TABLE": "platform-dev-team-memberships",
+        "USERS_TABLE": "platform-dev-users"
+    },
+
+
+    "stg": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "TEAMS_TABLE": "platform-stg-teams",
+        "MEMBERSHIPS_TABLE": "platform-stg-team-memberships",
+        "USERS_TABLE": "platform-stg-users"
+    },
+
+
+    "prd": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "TEAMS_TABLE": "platform-prd-teams",
+        "MEMBERSHIPS_TABLE": "platform-prd-team-memberships",
+        "USERS_TABLE": "platform-prd-users"
+    },
+
+
+    "test": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "TEAMS_TABLE": "platform-test-teams",
+        "MEMBERSHIPS_TABLE": "platform-test-team-memberships",
+        "USERS_TABLE": "platform-test-users"
+    }
+}

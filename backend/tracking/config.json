@@ -1,0 +1,40 @@
+{
+    "dev": {
+	"SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+	"USER_STATUS_TABLE": "platform-dev-tracking-user-status",
+	"USER_ATTENDANCE_TABLE": "platform-dev-user-attendance",
+	"TRACKED_EVENTS_TABLE": "platform-dev-tracked-events",
+	"TRACKING_NOTES_TABLE": "platform-dev-tracking-notes",
+	"LIVE_COUNT_TABLE": "platform-dev-tracking-live-count"
+    },
+
+
+    "stg": {
+	"SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+	"USER_STATUS_TABLE": "platform-stg-tracking-user-status",
+	"USER_ATTENDANCE_TABLE": "platform-stg-user-attendance",
+	"TRACKED_EVENTS_TABLE": "platform-stg-tracked-events",
+	"TRACKING_NOTES_TABLE": "platform-stg-tracking-notes",
+	"LIVE_COUNT_TABLE": "platform-stg-tracking-live-count"
+    },
+
+
+    "prd": {
+	"SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+	"USER_STATUS_TABLE": "platform-prd-tracking-user-status",
+	"USER_ATTENDANCE_TABLE": "platform-prd-user-attendance",
+	"TRACKED_EVENTS_TABLE": "platform-prd-tracked-events",
+	"TRACKING_NOTES_TABLE": "platform-prd-tracking-notes",
+	"LIVE_COUNT_TABLE": "platform-prd-tracking-live-count"
+    },
+
+
+    "test": {
+	"SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+	"USER_STATUS_TABLE": "platform-test-tracking-user-status",
+	"USER_ATTENDANCE_TABLE": "platform-test-user-attendance",
+	"TRACKED_EVENTS_TABLE": "platform-test-tracked-events",
+	"TRACKING_NOTES_TABLE": "platform-test-tracking-notes",
+	"LIVE_COUNT_TABLE": "platform-test-tracking-live-count"
+    }
+}

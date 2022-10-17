@@ -1,0 +1,85 @@
+frameworkVersion: '2'
+org: technica
+app: platform
+service: platform-mobile
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  timeout: 15
+  deploymentBucket:
+    name: platform-mobile-${self:provider.stage}-layers-bucket
+  tags:
+    acl: hacker # default ACL is hacker, will be overrided if needed
+  environment:
+    SENTRY_DSN: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+    EXPO_TOKEN_TABLE: ${file(./config.json):${self:provider.stage}.EXPO_TOKEN_TABLE}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-restApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-rootResourceId
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - secretsmanager:DescribeSecret
+        - secretsmanager:GetSecretValue
+      Resource: "arn:aws:secretsmanager:us-east-1:*"
+
+functions:
+  register:
+    handler: handler.register
+    description: Registers a mobile app user
+    events:
+      - http:
+          path: mobile/register
+          method: post
+          cors: true
+  send_announcement:
+    handler: handler.send_announcement
+    description: Sends an announcement as a notification to all registered mobile devices
+    events: 
+      - http: 
+          path: mobile/announcements
+          method: post
+          cors: true
+
+
+resources:
+  Resources:
+    expoTokenTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.EXPO_TOKEN_TABLE}
+        AttributeDefinitions:
+          - AttributeName: token
+            AttributeType: S
+        KeySchema:
+          - AttributeName: token
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    
+plugins:
+  - serverless-sentry
+  - serverless-jest-plugin
+  - serverless-layers
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+  # see https://github.com/nordcloud/serverless-jest-plugin
+  jest:
+    collectCoverage: true
+  serverless-layers:
+    dependenciesPath: ./package.json

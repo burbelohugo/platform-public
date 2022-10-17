@@ -1,0 +1,24 @@
+{
+    "dev": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "EXPO_TOKEN_TABLE": "platform-dev-expo-token"
+    },
+
+
+    "stg": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "EXPO_TOKEN_TABLE": "platform-stg-expo-token"
+    },
+
+
+    "prd": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "EXPO_TOKEN_TABLE": "platform-prd-expo-token"
+    },
+
+
+    "test": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "EXPO_TOKEN_TABLE": "platform-test-expo-token"
+    }
+}

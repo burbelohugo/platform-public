@@ -1,0 +1,251 @@
+org: technica
+app: platform
+service: platform-admin
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  timeout: 15
+  deploymentBucket:
+    name: platform-admin-${self:provider.stage}-layers-bucket
+  tags:
+    acl: hacker # default ACL is hacker, will be overrided if needed
+  environment:
+    SENTRY_DSN: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+    ADMIN_TABLE: ${file(./config.json):${self:provider.stage}.ADMIN_TABLE}
+    EASTER_EGGS_TABLE: ${file(./config.json):${self:provider.stage}.EASTER_EGGS_TABLE}
+    SPONSOR_BOOTHS_TABLE: ${file(./config.json):${self:provider.stage}.SPONSOR_BOOTHS_TABLE}
+    ANNOUNCEMENTS_TABLE: ${file(./config.json):${self:provider.stage}.ANNOUNCEMENTS_TABLE}
+    ANNOUNCEMENTS_CHANNEL: ${file(./config.json):${self:provider.stage}.ANNOUNCEMENTS_CHANNEL}
+    SPONSOR_ACTIVITY_TRACKING_TABLE: ${file(./config.json):${self:provider.stage}.SPONSOR_ACTIVITY_TRACKING_TABLE}
+    SLACK_WEBHOOK_SECRET_NAME: ${file(./config.json):${self:provider.stage}.SLACK_WEBHOOK_SECRET_NAME}
+    ACHIEVEMENTS_TABLE: ${file(./config.json):${self:provider.stage}.ACHIEVEMENTS_TABLE}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-restApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-rootResourceId
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - secretsmanager:DescribeSecret
+        - secretsmanager:GetSecretValue
+      Resource: "arn:aws:secretsmanager:us-east-1:*"
+
+functions:
+  frontend_version:
+    handler: handler.frontend_version
+    description: Returns current frontend version
+    events:
+      - http:
+          path: version
+          method: get
+          cors: true      
+  get_easter_eggs:
+    handler: handler.get_easter_eggs
+    description: Returns hacker progress in scavenger hunt
+    events:
+      - http:
+          path: admin/easter_eggs
+          method: get
+          cors: true
+  update_easter_eggs:
+    handler: handler.update_easter_eggs
+    description: Updates hacker progress in scavenger hunt
+    events:
+      - http:
+          path: admin/easter_eggs
+          method: post
+          cors: true
+  get_sponsor_booth:
+    handler: handler.get_sponsor_booth
+    description: Retrieves a specific sponsor booth
+    events:
+      - http:
+          path: admin/sponsor_booth
+          method: get
+          cors: true
+  add_sponsor_booth:
+    handler: handler.add_sponsor_booth
+    description: Adds a sponsor booth to the DB
+    events:
+      - http:
+          path: admin/sponsor_booth
+          method: post
+          cors: true
+  update_sponsor_booth:
+    handler: handler.update_sponsor_booth
+    description: Updates a sponsor booth in the DB
+    events:
+      - http:
+          path: admin/sponsor_booth/update
+          method: post
+          cors: true
+  delete_sponsor_booth:
+    handler: handler.delete_sponsor_booth
+    description: Deletes a sponsor booth in the DB
+    events:
+      - http:
+          path: admin/sponsor_booth/delete
+          method: post
+          cors: true
+  get_sponsor_booths:
+    handler: handler.get_sponsor_booths
+    description: Retrieves all sponsor booths
+    events:
+      - http:
+          path: admin/sponsor_booths
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            ttlInSeconds: 60 # sponsor booths will "update" every minute
+  get_active_sponsor_booths:
+    handler: handler.get_active_sponsor_booths
+    description: Retrieves the booth id of every sponsor booth that is open
+    events:
+      - http:
+          path: admin/sponsor_booths/active
+          method: get
+          cors: true
+  add_announcement:
+    handler: handler.add_announcement
+    description: Adds an announcement to the DB
+    events:
+      - http:
+          path: admin/announcements
+          method: post
+          cors: true
+  get_announcements:
+    handler: handler.get_announcements
+    description: Retrieves the announcements from the DB
+    events:
+      - http:
+          path: admin/announcements
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            ttlInSeconds: 10 # annoucements will "update" every 10 seconds
+  get_mobile_announcements:
+    handler: handler.get_mobile_announcements
+    description: Retrieves the announcements in simple string format from the DB
+    events:
+      - http:
+          path: admin/announcements/mobile
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            ttlInSeconds: 10 # annoucements will "update" every 10 seconds
+  log_event_to_slack:
+    handler: handler.log_event_to_slack
+    description: Logs event to slack
+    events:
+      - http:
+          path: admin/slack
+          method: post
+          cors: true
+  get_sponsor_activity:
+    handler: handler.get_sponsor_activity
+    description: Retrieves a specific sponsor booth activity
+    events:
+      - http:
+          path: admin/sponsor_activity
+          method: get
+          cors: true
+  track_sponsor_activity:
+    handler: handler.track_sponsor_activity
+    description: Adds sponsor activity to DB
+    events:
+      - http:
+          path: admin/sponsor_activity
+          method: post
+          cors: true
+    tags:
+      acl: admin     
+resources:
+  Resources:
+    adminTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.ADMIN_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    announcementsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.ANNOUNCEMENTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    easterEggsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.EASTER_EGGS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    sponsorActivityTrackingTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.SPONSOR_ACTIVITY_TRACKING_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    sponsorBoothTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.SPONSOR_BOOTHS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH   
+        BillingMode: PAY_PER_REQUEST
+    
+plugins:
+  - serverless-sentry
+  - serverless-jest-plugin
+  - serverless-layers
+  - serverless-api-gateway-caching
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+  # see https://github.com/nordcloud/serverless-jest-plugin
+  jest:
+    collectCoverage: true
+  serverless-layers:
+    dependenciesPath: ./package.json
+  apiGatewayCaching:
+    enabled: true

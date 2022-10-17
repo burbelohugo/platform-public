@@ -1,0 +1,305 @@
+frameworkVersion: '2'
+org: technica
+app: platform
+service: platform-projects
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  deploymentBucket:
+    name: platform-projects-${self:provider.stage}-layers-bucket
+  tags:
+    acl: hacker # default ACL is hacker, will be overrided if needed
+  environment:
+    SENTRY_DSN: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+    PROJECTS_TABLE: ${file(./config.json):${self:provider.stage}.PROJECTS_TABLE}
+    SPONSORS_INFO_TABLE: ${file(./config.json):${self:provider.stage}.SPONSORS_INFO_TABLE}
+    SPONSOR_BOOTHS_TABLE: ${file(./config.json):${self:provider.stage}.SPONSOR_BOOTHS_TABLE}
+    MENTORSHIP_REQUESTS_TABLE: ${file(./config.json):${self:provider.stage}.MENTORSHIP_REQUESTS_TABLE}
+    DEVPOST_LINK_TABLE: ${file(./config.json):${self:provider.stage}.DEVPOST_LINK_TABLE}
+    PROJECT_SUBMISSION_CHECKLIST_ITEMS_TABLE: ${file(./config.json):${self:provider.stage}.PROJECT_SUBMISSION_CHECKLIST_ITEMS_TABLE}
+    SLACK_WEBHOOK_SECRET_NAME: ${file(./config.json):${self:provider.stage}.SLACK_WEBHOOK_SECRET_NAME}
+    USERS_TABLE: ${file(./config.json):${self:provider.stage}.USERS_TABLE}
+    FAVORITE_HACKERS_TABLE: ${file(./config.json):${self:provider.stage}.FAVORITE_HACKERS_TABLE}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-restApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-rootResourceId
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+       - dynamodb:Query
+       - dynamodb:Scan
+       - dynamodb:GetItem
+       - dynamodb:PutItem
+       - dynamodb:UpdateItem
+       - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - secretsmanager:DescribeSecret
+        - secretsmanager:GetSecretValue
+      Resource: "arn:aws:secretsmanager:us-east-1:*"
+
+functions:
+  add_sponsor:
+    handler: handler.add_sponsor
+    description: Adds a new sponsor to the database
+    events:
+      - http: 
+          path: projects/sponsor
+          method: post
+          cors: true
+    tags:
+      acl: organizer
+  add_sponsor_from_form:
+    handler: handler.add_sponsor_from_form
+    description: Adds a new sponsor to the database from a typeform
+    events:
+      - http:
+          path: projects/sponsor/typeform
+          method: post
+          cors: true
+    tags:
+      acl: organizer
+  update_sponsor:
+    handler: handler.update_sponsor
+    description: Updates a sponsor in the database
+    events:
+      - http:
+          path: projects/sponsor/update
+          method: post
+          cors: true
+    tags:
+      acl: sponsor
+  delete_sponsor:
+    handler: handler.delete_sponsor
+    description: Deletes a sponsor in the database
+    events:
+      - http:
+          path: projects/sponsor/delete
+          method: post
+          cors: true
+    tags:
+      acl: admin
+  get_sponsorship_info:
+    handler: handler.get_sponsorship_info
+    description: gets sponsorship info from the database
+    events:
+      - http: 
+          path: projects/sponsorship_info
+          method: get
+          cors: true
+  get_active_mentorship_requests:
+    handler: handler.get_active_mentorship_requests
+    description: gets active mentorship requests from the database
+    events:
+      - http: 
+          path: projects/mentorship_requests
+          method: get
+          cors: true
+    tags:
+      acl: mentor
+  create_mentorship_request:
+    handler: handler.create_mentorship_request
+    description: adds a new mentorship request to the database
+    events:
+      - http: 
+          path: projects/mentorship_requests
+          method: post
+          cors: true
+  claim_mentorship_request:
+    handler: handler.claim_mentorship_request
+    description: claims an open mentorship request
+    events:
+      - http: 
+          path: projects/mentorship_requests/claim
+          method: post
+          cors: true
+    tags:
+      acl: mentor
+  update_mentorship_request:
+    handler: handler.update_mentorship_request
+    description: update a mentorship request
+    events:
+      - http: 
+          path: projects/mentorship_requests/update
+          method: post
+          cors: true
+  get_user_mentorship_requests:
+    handler: handler.get_user_mentorship_requests
+    description: gets mentorship requests created by a specified user
+    events:
+      - http: 
+          path: projects/mentorship_requests/user
+          method: get
+          cors: true
+  create_project_submission:
+    handler: handler.create_project_submission
+    description: creates a project submission to devpost
+    events:
+      - http:
+          path: projects/submission
+          method: post
+          cors: true
+  update_project_submission:
+    handler: handler.update_project_submission
+    description: updates an existing project submission
+    events:
+      - http: 
+          path: projects/submission/update
+          method: post
+          cors: true
+  create_project_checklist_item:
+    handler: handler.create_project_checklist_item
+    description: adds a new project submission checklist item to the database
+    events:
+      - http: 
+          path: projects/submission/checklist
+          method: post
+          cors: true
+  get_project_checklist_item:
+    handler: handler.get_project_checklist_item
+    description: gets a project submission checklist item from the database
+    events:
+      - http: 
+          path: projects/submission/checklist
+          method: get
+          cors: true
+  update_project_checklist_item:
+    handler: handler.update_project_checklist_item
+    description: updates an existing project submission checklist item in the database
+    events:
+      - http: 
+          path: projects/submission/checklist/update
+          method: post
+          cors: true
+  lookup_user_slack_id_by_email:
+    handler: handler.lookup_user_slack_id_by_email
+    description: looks up a user by their email to get their slack ID
+    events:
+      - http: 
+          path: projects/lookup_user
+          method: get
+          cors: true
+  add_favorite_hacker:
+    handler: handler.add_favorite_hacker
+    description: adds hacker to sponsor's favorite list
+    events:
+      - http: 
+          path: projects/favorite_hacker
+          method: post
+          cors: true
+    tags:
+      acl: sponsor
+  get_favorite_hackers:
+    handler: handler.get_favorite_hackers
+    description: get all of the favorite hackers for a particular sponsor
+    events:
+      - http: 
+          path: projects/favorite_hacker
+          method: get
+          cors: true
+    tags:
+      acl: sponsor
+  delete_favorite_hacker:
+    handler: handler.delete_favorite_hacker
+    description: deletes hacker from sponsor's favorite list
+    events:
+      - http: 
+          path: projects/favorite_hacker/delete
+          method: post
+          cors: true
+    tags:
+      acl: sponsor
+
+resources:
+  Resources:
+    projectsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.PROJECTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    projectSubmissionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.DEVPOST_LINK_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    projectSubmissionChecklistTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.PROJECT_SUBMISSION_CHECKLIST_ITEMS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    mentorshipRequestsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.MENTORSHIP_REQUESTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    sponsorshipInfoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.SPONSORS_INFO_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    favoriteHackersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.FAVORITE_HACKERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: sponsor_id
+            AttributeType: S
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sponsor_id
+            KeyType: HASH
+          - AttributeName: user_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-sentry
+  - serverless-jest-plugin
+  - serverless-layers
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+  # see https://github.com/nordcloud/serverless-jest-plugin
+  jest:
+    collectCoverage: true
+  serverless-layers:
+    dependenciesPath: ./package.json

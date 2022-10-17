@@ -1,0 +1,52 @@
+{
+    "dev": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "ADMIN_TABLE": "platform-dev-admin",
+        "EASTER_EGGS_TABLE": "platform-dev-easter-eggs",
+        "SPONSOR_BOOTHS_TABLE": "platform-dev-sponsor-booths",
+        "ANNOUNCEMENTS_TABLE": "platform-dev-announcements",
+        "ANNOUNCEMENTS_CHANNEL": "C02K7NXV7U1",
+        "SPONSOR_ACTIVITY_TRACKING_TABLE": "platform-dev-sponsor-activity-tracking",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "ACHIEVEMENTS_TABLE": "platform-dev-achievements"
+    },
+
+
+    "stg": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "ADMIN_TABLE": "platform-stg-admin",
+        "EASTER_EGGS_TABLE": "platform-stg-easter-eggs",
+        "SPONSOR_BOOTHS_TABLE": "platform-stg-sponsor-booths",
+        "ANNOUNCEMENTS_TABLE": "platform-stg-announcements",
+        "ANNOUNCEMENTS_CHANNEL": "C02K7NXV7U1",
+        "SPONSOR_ACTIVITY_TRACKING_TABLE": "platform-stg-sponsor-activity-tracking",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "ACHIEVEMENTS_TABLE": "platform-stg-achievements"
+    },
+
+
+    "prd": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "ADMIN_TABLE": "platform-prd-admin",
+        "EASTER_EGGS_TABLE": "platform-prd-easter-eggs",
+        "SPONSOR_BOOTHS_TABLE": "platform-prd-sponsor-booths",
+        "ANNOUNCEMENTS_TABLE": "platform-prd-announcements",
+        "ANNOUNCEMENTS_CHANNEL": "C02K7NXV7U1",
+        "SPONSOR_ACTIVITY_TRACKING_TABLE": "platform-prd-sponsor-activity-tracking",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "ACHIEVEMENTS_TABLE": "platform-prd-achievements"
+    },
+
+
+    "test": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "ADMIN_TABLE": "platform-test-admin",
+        "EASTER_EGGS_TABLE": "platform-test-easter-eggs",
+        "SPONSOR_BOOTHS_TABLE": "platform-test-sponsor-booths",
+        "ANNOUNCEMENTS_TABLE": "platform-test-announcements",
+        "ANNOUNCEMENTS_CHANNEL": "C02K7NXV7U1",
+        "SPONSOR_ACTIVITY_TRACKING_TABLE": "platform-test-sponsor-activity-tracking",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "ACHIEVEMENTS_TABLE": "platform-test-achievements"
+    }
+}

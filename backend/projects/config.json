@@ -1,0 +1,56 @@
+{
+    "dev": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "PROJECTS_TABLE": "platform-dev-projects",
+        "SPONSORS_INFO_TABLE": "platform-dev-sponsorship-info",
+        "SPONSOR_BOOTHS_TABLE": "platform-dev-sponsor-booths",
+        "MENTORSHIP_REQUESTS_TABLE": "platform-dev-mentorship-requests",
+        "DEVPOST_LINK_TABLE": "platform-dev-project-submissions",
+        "PROJECT_SUBMISSION_CHECKLIST_ITEMS_TABLE": "platform-dev-project-checklist-items",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "USERS_TABLE": "platform-dev-users",
+        "FAVORITE_HACKERS_TABLE": "platform-dev-favorite-hackers"
+    },
+
+
+    "stg": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "PROJECTS_TABLE": "platform-stg-projects",
+        "SPONSORS_INFO_TABLE": "platform-stg-sponsorship-info",
+        "SPONSOR_BOOTHS_TABLE": "platform-stg-sponsor-booths",
+        "DEVPOST_LINK_TABLE": "platform-stg-project-submissions",
+        "PROJECT_SUBMISSION_CHECKLIST_ITEMS_TABLE": "platform-stg-project-checklist-items",
+        "MENTORSHIP_REQUESTS_TABLE": "platform-stg-mentorship-requests",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "USERS_TABLE": "platform-stg-users",
+        "FAVORITE_HACKERS_TABLE": "platform-stg-favorite-hackers"
+    },
+
+
+    "prd": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "PROJECTS_TABLE": "platform-prd-projects",
+        "SPONSORS_INFO_TABLE": "platform-prd-sponsorship-info",
+        "SPONSOR_BOOTHS_TABLE": "platform-prd-sponsor-booths",
+        "MENTORSHIP_REQUESTS_TABLE": "platform-prd-mentorship-requests",
+        "PROJECT_SUBMISSION_CHECKLIST_ITEMS_TABLE": "platform-prd-project-checklist-items",
+        "DEVPOST_LINK_TABLE": "platform-test-project-submissions",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "USERS_TABLE": "platform-prd-users",
+        "FAVORITE_HACKERS_TABLE": "platform-prd-favorite-hackers"
+    },
+
+
+    "test": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "PROJECTS_TABLE": "platform-test-projects",
+        "SPONSORS_INFO_TABLE": "platform-test-sponsorship-info",
+        "SPONSOR_BOOTHS_TABLE": "platform-test-sponsor-booths",
+        "MENTORSHIP_REQUESTS_TABLE": "platform-test-mentorship-requests",
+        "DEVPOST_LINK_TABLE": "platform-test-project-submissions",
+        "PROJECT_SUBMISSION_CHECKLIST_ITEMS_TABLE": "platform-test-project-checklist-items",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "USERS_TABLE": "platform-test-users",
+        "FAVORITE_HACKERS_TABLE": "platform-test-favorite-hackers"
+    }
+}

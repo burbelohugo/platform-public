@@ -1,0 +1,146 @@
+frameworkVersion: '2'
+org: technica
+app: platform
+service: platform-chats
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  timeout: 15
+  deploymentBucket:
+     name: platform-chats-${self:provider.stage}-layers-bucket
+  tags:
+    acl: hacker # default ACL is hacker, will be overrided if needed
+  environment:
+    SENTRY_DSN: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+    ACTIVE_SPONSORS_TABLE: ${file(./config.json):${self:provider.stage}.ACTIVE_SPONSORS_TABLE}
+    USERS_TABLE: ${file(./config.json):${self:provider.stage}.USERS_TABLE}
+    HACKER_QUEUE_TABLE: ${file(./config.json):${self:provider.stage}.HACKER_QUEUE_TABLE}
+    TWILIO_SECRET_NAME: ${file(./config.json):${self:provider.stage}.TWILIO_SECRET_NAME}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-restApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-rootResourceId
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - secretsmanager:DescribeSecret
+        - secretsmanager:GetSecretValue
+      Resource: "arn:aws:secretsmanager:us-east-1:*"
+
+functions:
+  mark_sponsor_offline:
+    handler: handler.mark_sponsor_offline
+    description: Marks requesting sponsor offline in speed chatting
+    events:
+      - http:
+          path: chats/sponsor/leave
+          method: post
+          cors: true
+    tags:
+      acl: sponsor
+  mark_sponsor_active:
+    handler: handler.mark_sponsor_active
+    description: Marks requesting sponsor active in speed chatting
+    events:
+      - http:
+          path: chats/sponsor/join
+          method: post
+          cors: true
+    tags:
+      acl: sponsor
+  generate_twilio_token:
+    handler: handler.generate_twilio_token
+    description: Generate user tokens using Twilio API keys 
+    events:
+      - http:
+          path: chats/token
+          method: get
+          cors: true
+  join_chat:
+    handler: handler.join_chat
+    description: Adds hacker to speed chat queue
+    events:
+      - http:
+          path: chats/join
+          method: post
+          cors: true
+  check_status:
+    handler: handler.check_status
+    description: Checks status of hacker in the queue
+    events:
+      - http:
+          path: chats/status
+          method: get
+          cors: true
+  pop_hacker:
+    handler: handler.pop_hacker
+    description: Pops a user from the hacker queue and assigns them to sponsor
+    events:
+      - http:
+          path: chats/sponsor/pop
+          method: get
+          cors: true
+  mark_attendance:
+    handler: handler.complete_visit
+    description: Marks a user as finishing a session with a sponsor room
+    events:
+      - http:
+          path: chats/sponsor/complete
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    activeSponsorsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.ACTIVE_SPONSORS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: email
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    hackerQueueTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.HACKER_QUEUE_TABLE}
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+          - AttributeName: priority
+            AttributeType: N
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+          - AttributeName: priority
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+    
+plugins:
+  - serverless-sentry
+  - serverless-jest-plugin
+  - serverless-layers
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+  # see https://github.com/nordcloud/serverless-jest-plugin
+  jest:
+    collectCoverage: true
+  serverless-layers:
+    dependenciespath: ./package.json

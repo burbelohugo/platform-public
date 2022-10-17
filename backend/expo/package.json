@@ -1,0 +1,45 @@
+{
+  "name": "expo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "sls invoke test --stage test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sentry/node": "^5.19.1",
+    "@slack/web-api": "^6.1.0",
+    "aws-sdk": "^2.844.0",
+    "csv-parser": "^3.0.0",
+    "csvtojson": "^2.0.10",
+    "fast-csv": "^4.3.6",
+    "json-2-csv": "^3.10.2",
+    "serverless-api-gateway-caching": "^1.7.4",
+    "serverless-jest-plugin": "^0.3.0",
+    "serverless-sentry-lib": "^2.3.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "aws-lambda": "^1.0.6",
+    "aws-sdk-mock": "^5.1.0",
+    "eslint": "^7.21.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.2.1",
+    "fs": "0.0.1-security",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.5.4",
+    "serverless-layers": "^2.3.3",
+    "serverless-sentry": "^2.0.2"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix"
+  },
+  "husky": {
+    "hooks": {
+    }
+  }
+}

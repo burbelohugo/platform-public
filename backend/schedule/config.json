@@ -1,0 +1,60 @@
+{
+    "dev": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "SCHEDULE_TABLE": "platform-dev-schedule",
+        "USER_EVENTS_TABLE": "platform-dev-user-events",
+        "SHORTLINKS_TABLE": "platform-dev-shortlinks",
+        "SHORTLINK_CLICKS_TABLE": "platform-dev-shortlink-clicks",
+        "ZOOM_API_EMAIL_ACCOUNT": "hugoburbelo@gmail.com",
+        "ZOOM_LINK_TABLE": "platform-dev-meetings",
+        "ZOOM_API_KEY_SECRET_NAME": "ZOOM_TESTING_API_KEY",
+        "PLATFORM_BASE_URL": "localhost:8080",
+        "ZOOM_API_KEYS_TABLE": "platform-dev-zoom-api-keys",
+        "ACHIEVEMENTS_TABLE": "platform-dev-achievements"
+    },
+
+
+    "stg": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "SCHEDULE_TABLE": "platform-stg-schedule",
+        "USER_EVENTS_TABLE": "platform-stg-user-events",
+        "SHORTLINKS_TABLE": "platform-stg-shortlinks",
+        "SHORTLINK_CLICKS_TABLE": "platform-stg-shortlink-clicks",
+        "ZOOM_API_EMAIL_ACCOUNT": "hugoburbelo@gmail.com",
+        "ZOOM_LINK_TABLE": "platform-stg-meetings",
+        "ZOOM_API_KEY_SECRET_NAME": "ZOOM_TESTING_API_KEY",
+        "PLATFORM_BASE_URL": "http://platform-staging.gotechnica.org",
+        "ZOOM_API_KEYS_TABLE": "platform-stg-zoom-api-keys",
+        "ACHIEVEMENTS_TABLE": "platform-stg-achievements"
+    },
+
+
+    "prd": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "SCHEDULE_TABLE": "platform-prd-schedule",
+        "USER_EVENTS_TABLE": "platform-prd-user-events",
+        "SHORTLINKS_TABLE": "platform-prd-shortlinks",
+        "SHORTLINK_CLICKS_TABLE": "platform-prd-shortlink-clicks",
+        "ZOOM_API_EMAIL_ACCOUNT": "hugoburbelo@gmail.com",
+        "ZOOM_LINK_TABLE": "platform-prd-meetings",
+        "ZOOM_API_KEY_SECRET_NAME": "ZOOM_TESTING_API_KEY",
+        "PLATFORM_BASE_URL": "https://platform.gotechnica.org",
+        "ZOOM_API_KEYS_TABLE": "platform-prd-zoom-api-keys",
+        "ACHIEVEMENTS_TABLE": "platform-prd-achievements"
+    },
+
+
+    "test": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "SCHEDULE_TABLE": "platform-test-schedule",
+        "USER_EVENTS_TABLE": "platform-test-user-events",
+        "SHORTLINKS_TABLE": "platform-test-shortlinks",
+        "SHORTLINK_CLICKS_TABLE": "platform-test-shortlink-clicks",
+        "ZOOM_API_EMAIL_ACCOUNT": "hugoburbelo@gmail.com",
+        "ZOOM_LINK_TABLE": "platform-test-meetings",
+        "ZOOM_API_KEY_SECRET_NAME": "ZOOM_TESTING_API_KEY",
+        "PLATFORM_BASE_URL": "https://platform-test.gotechnica.org",
+        "ZOOM_API_KEYS_TABLE": "platform-test-zoom-api-keys",
+        "ACHIEVEMENTS_TABLE": "platform-test-achievements"
+    }
+}

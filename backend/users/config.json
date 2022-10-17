@@ -1,0 +1,74 @@
+{
+    "dev": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "BANNED_USERS_TABLE": "platform-dev-banned-users",
+        "USERS_TABLE": "platform-dev-users",
+        "INVITES_TABLE": "platform-dev-invites",
+        "RESUMES_TABLE": "platform-dev-resumes",
+        "CLOUDSEARCH_DOMAIN_DOCUMENT": "http://doc-resumes-dev-jamqxof73ewydqv4swo67utwd4.us-east-1.cloudsearch.amazonaws.com",
+        "CLOUDSEARCH_DOMAIN_SEARCH":  "http://search-resumes-dev-jamqxof73ewydqv4swo67utwd4.us-east-1.cloudsearch.amazonaws.com",
+        "INVITE_TEMPLATE_ID": "d-b55f945d51b04bc38aa12f69c4c65d28",
+        "BASE_INVITE_URL": "http://localhost:8080/authenticate",
+        "REGISTRATION_REFERRAL_TABLE": "platform-dev-referrals",
+        "REGISTRATION_TEMPLATE_ID": "d-37d309451576469988ffa38d21309133",
+        "REGISTRATION_INVITE_URL": "https://gotechnica.org/apply",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "ACTIVITY_TABLE": "platform-dev-activity",
+        "UUID_NAMESPACE": "002e996d-4fd7-4499-b2e6-cee7de219d45"
+    },
+
+
+    "stg": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "BANNED_USERS_TABLE": "platform-stg-banned-users",
+        "USERS_TABLE": "platform-stg-users",
+        "INVITES_TABLE": "platform-stg-invites",
+        "RESUMES_TABLE": "platform-stg-resumes",
+        "CLOUDSEARCH_DOMAIN_DOCUMENT": "http://doc-resumes-stg-atayl6fptypahjrc3zuei3ttrm.us-east-1.cloudsearch.amazonaws.com",
+        "CLOUDSEARCH_DOMAIN_SEARCH":  "http://search-resumes-stg-atayl6fptypahjrc3zuei3ttrm.us-east-1.cloudsearch.amazonaws.com",
+        "INVITE_TEMPLATE_ID": "d-b55f945d51b04bc38aa12f69c4c65d28",
+        "BASE_INVITE_URL": "http://platform.beta.gotechnica.org/authenticate",
+        "REGISTRATION_REFERRAL_TABLE": "platform-dev-referrals",
+        "REGISTRATION_TEMPLATE_ID": "d-37d309451576469988ffa38d21309133",
+        "REGISTRATION_INVITE_URL": "https://gotechnica.org/apply",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "ACTIVITY_TABLE": "platform-stg-activity",
+        "UUID_NAMESPACE": "400f4845-cdc3-4634-aadd-cc306638395f"
+    },
+
+
+    "prd": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "BANNED_USERS_TABLE": "platform-prd-banned-users",
+        "USERS_TABLE": "platform-prd-users",
+        "INVITES_TABLE": "platform-prd-invites",
+        "RESUMES_TABLE": "platform-prd-resumes",
+        "CLOUDSEARCH_DOMAIN_DOCUMENT":  "http://doc-resumes-prd-qvuuk6q6pxy7uszks5qtd3h65a.us-east-1.cloudsearch.amazonaws.com",
+        "CLOUDSEARCH_DOMAIN_SEARCH":  "http://search-resumes-prd-qvuuk6q6pxy7uszks5qtd3h65a.us-east-1.cloudsearch.amazonaws.com",
+        "INVITE_TEMPLATE_ID": "d-b55f945d51b04bc38aa12f69c4c65d28",
+        "BASE_INVITE_URL": "https://platform.gotechnica.org/authenticate",
+        "REGISTRATION_REFERRAL_TABLE": "platform-prd-referrals",
+        "REGISTRATION_TEMPLATE_ID": "d-37d309451576469988ffa38d21309133",
+        "REGISTRATION_INVITE_URL": "https://gotechnica.org/apply",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "ACTIVITY_TABLE": "platform-prd-activity",
+        "UUID_NAMESPACE": "43152612-4dad-4c6f-8a7f-e7f45cff9db1"
+    },
+
+
+    "test": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "BANNED_USERS_TABLE": "platform-test-banned-users",
+        "USERS_TABLE": "platform-test-users",
+        "INVITES_TABLE": "platform-test-invites",
+        "RESUMES_TABLE": "platform-test-resumes",
+        "INVITE_TEMPLATE_ID": "d-b55f945d51b04bc38aa12f69c4c65d28",
+        "BASE_INVITE_URL": "http://platform.beta.gotechnica.org/authenticate",
+        "REGISTRATION_REFERRAL_TABLE": "platform-test-referrals",
+        "REGISTRATION_TEMPLATE_ID": "d-37d309451576469988ffa38d21309133",
+        "REGISTRATION_INVITE_URL": "https://gotechnica.org/apply",
+        "SLACK_WEBHOOK_SECRET_NAME": "slack-bot-secrets",
+        "ACTIVITY_TABLE": "platform-test-activity",
+        "UUID_NAMESPACE": "78ac0f02-e338-4576-a799-ce6aeca10248"
+    }
+}

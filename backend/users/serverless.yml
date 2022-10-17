@@ -1,0 +1,290 @@
+frameworkVersion: '2'
+org: technica
+app: platform
+service: platform-users
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  timeout: 15
+  deploymentBucket:
+    name: platform-users-${self:provider.stage}-layers-bucket
+  tags:
+    acl: hacker # default ACL is hacker, will be overrided if needed
+  environment:
+    SENTRY_DSN: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+    BANNED_USERS_TABLE: ${file(./config.json):${self:provider.stage}.BANNED_USERS_TABLE}
+    USERS_TABLE: ${file(./config.json):${self:provider.stage}.USERS_TABLE}
+    ACTIVITY_TABLE: ${file(./config.json):${self:provider.stage}.ACTIVITY_TABLE}
+    INVITES_TABLE: ${file(./config.json):${self:provider.stage}.INVITES_TABLE}
+    RESUMES_TABLE: ${file(./config.json):${self:provider.stage}.RESUMES_TABLE}
+    CLOUDSEARCH_DOMAIN_DOCUMENT: ${file(./config.json):${self:provider.stage}.CLOUDSEARCH_DOMAIN_DOCUMENT}
+    CLOUDSEARCH_DOMAIN_SEARCH:  ${file(./config.json):${self:provider.stage}.CLOUDSEARCH_DOMAIN_SEARCH}
+    REGISTRATION_REFERRAL_TABLE: ${file(./config.json):${self:provider.stage}.REGISTRATION_REFERRAL_TABLE}
+    INVITE_TEMPLATE_ID: ${file(./config.json):${self:provider.stage}.INVITE_TEMPLATE_ID}
+    BASE_INVITE_URL: ${file(./config.json):${self:provider.stage}.BASE_INVITE_URL}
+    REGISTRATION_TEMPLATE_ID: ${file(./config.json):${self:provider.stage}.REGISTRATION_TEMPLATE_ID}
+    REGISTRATION_INVITE_URL: ${file(./config.json):${self:provider.stage}.REGISTRATION_INVITE_URL}
+    SLACK_WEBHOOK_SECRET_NAME: ${file(./config.json):${self:provider.stage}.SLACK_WEBHOOK_SECRET_NAME}
+    UUID_NAMESPACE: ${file(./config.json):${self:provider.stage}.UUID_NAMESPACE}
+    STAGE: ${self:provider.stage}
+  apiGateway:
+    restApiId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-restApiId
+    restApiRootResourceId:
+      'Fn::ImportValue': platform-${self:provider.stage}-apigw-rootResourceId
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - secretsmanager:DescribeSecret
+        - secretsmanager:GetSecretValue
+      Resource: "arn:aws:secretsmanager:us-east-1:*"
+    - Effect: "Allow"
+      Action:
+        - ses:SendTemplatedEmail
+      Resource: "arn:aws:ses:us-east-1:*"
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:ListBucket
+        - s3:ListBucketVersions
+      Resource:
+        - "arn:aws:s3:::*"
+
+functions:
+  # ----- some authz routes -----
+  get_token:
+    handler: handler.get_token
+    events:
+      - http:
+          path: authz/token
+          method: get
+          cors: true
+  send_login_link:
+    handler: handler.send_login_link
+    events:
+      - http:
+          path: authz/email
+          method: post
+          cors: true
+  # ----- end authz routes -----
+  delete_user:
+    handler: handler.delete_user
+    events:
+      - http:
+          path: users/delete
+          method: post
+          cors: true
+    tags:
+      acl: admin
+  get_user:
+    handler: handler.get_user
+    events:
+      - http:
+          path: users
+          method: get
+          cors: true
+  add_user:
+    handler: handler.add_user
+    events:
+      - http:
+          path: users/add
+          method: post
+          cors: true
+  invite_user_irl:
+    handler: handler.invite_user_irl
+    events:
+      - http:
+          path: users/irl_invite
+          method: post
+          cors: true
+  update_user:
+    handler: handler.update_user
+    events:
+      - http:
+          path: users/update
+          method: post
+          cors: true
+  ban_user:
+    handler: handler.ban_user
+    description: Adds user to banned table
+    events:
+      - http:
+          path: users/ban
+          method: post
+          cors: true
+    tags:
+      acl: organizer
+  get_banned_users:
+    handler: handler.get_banned_users
+    description: Retreives all users marked as 'banned'
+    events:
+      - http:
+          path: users/ban
+          method: get
+          cors: true
+  send_registration_email:
+    handler: handler.send_registration_email
+    description: Sends a registration confirmation email with a referral link
+    events:
+      - http:
+          path: users/confirmation
+          method: post
+          cors: true
+  find_user_by_email:
+    handler: handler.find_user_by_email
+    description: Finds the first user with that email address and returns them
+    events:
+      - http:
+          path: users/email-search
+          method: get
+          cors: true
+  update_hacker_profile:
+    handler: handler.update_hacker_profile
+    description: Updates user hacker profile with new information
+    events:
+      - http:
+          path: users/profile
+          method: post
+          cors: true
+  track_user_activity:
+    handler: handler.track_user_activity
+    description: Keeps track of user activity in Activity Table
+    events:
+      - http:
+          path: users/activity
+          method: post
+          cors: true
+  upload_resume:
+    handler: handler.upload_resume
+    description: Uploads a hacker's resume to s3
+    events:
+      - http:
+          path: users/resume
+          method: post
+          cors: true
+  upload_resume_text:
+    handler: handler.upload_resume_text
+    description: Upload's a hacker's resume text to ddb
+    events:
+      - http:
+          path: users/resume_text
+          method: post
+          cors: true
+  index_resumes:
+    handler: handler.index_resumes
+    description: Scans for resumes updated since last run and creates batch for CloudSearch
+    events:
+      - schedule:
+          rate: rate(20 minutes)
+          enabled: true
+  search_resumes:
+    handler: handler.search_resumes
+    description: Search endpoint for resumes
+    events:
+      - http:
+          path: users/search_resumes
+          method: post
+          cors: true
+  list_profiles:
+    handler: handler.list_profiles
+    description: Retrieves profiles
+    events:
+      - http:
+          path: users/list
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    bannedUsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.BANNED_USERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.USERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    activityTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.ACTIVITY_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    invitesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.INVITES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TimeToLiveSpecification:
+          AttributeName: expiry
+          Enabled: true
+    resumesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${file(./config.json):${self:provider.stage}.RESUMES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: submitted
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: submitted
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+
+
+plugins:
+  - serverless-sentry
+  - serverless-jest-plugin
+  - serverless-layers
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
+  # see https://github.com/nordcloud/serverless-jest-plugin
+  jest:
+    collectCoverage: true
+  serverless-layers:
+    dependenciesPath: ./package.json

@@ -1,0 +1,28 @@
+{
+    "dev": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "DOMAIN_NAME": "api.alpha.gotechnica.org",
+        "CERTIFICATE_ARN": "arn:aws:acm:us-east-1:296008842815:certificate/7d93e247-ca03-4202-962c-88d604e1dc32"
+    },
+
+
+    "stg": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "DOMAIN_NAME": "api.beta.gotechnica.org",
+        "CERTIFICATE_ARN": "arn:aws:acm:us-east-1:296008842815:certificate/48d20ef0-8711-491a-9006-10dad28aeb8d"
+    },
+
+
+    "prd": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "DOMAIN_NAME": "api.gotechnica.org",
+        "CERTIFICATE_ARN": "arn:aws:acm:us-east-1:296008842815:certificate/1e5c099a-9e7d-4fe1-bc7f-c8dc694d869c"
+    },
+
+
+    "test": {
+        "SENTRY_DSN": "https://2699331f0a6542e28d253542a2f2a3c2@o516733.ingest.sentry.io/5626840",
+        "DOMAIN_NAME": "test-api.alpha.gotechnica.org",
+        "CERTIFICATE_ARN": "arn:aws:acm:us-east-1:296008842815:certificate/7d93e247-ca03-4202-962c-88d604e1dc32"
+    }
+}

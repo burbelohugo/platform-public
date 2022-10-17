@@ -1,0 +1,51 @@
+frameworkVersion: '2'
+org: technica
+app: platform
+service: platform-api-gateway
+
+provider:
+  name: aws
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+
+functions:
+  authorizer:
+    handler: handler.auth
+    description: Lambda custom authorizer for platform api gateway
+    memorySize: 128
+
+resources:
+  Resources:
+    platformApiGW:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: platformApiGW
+        Description: ${self:provider.stage} API Gateway for platform
+    platformApiGWDomain:
+      Type: AWS::ApiGateway::DomainName
+      Properties:
+        CertificateArn: ${file(./config.json):${self:provider.stage}.CERTIFICATE_ARN}
+        DomainName: ${file(./config.json):${self:provider.stage}.DOMAIN_NAME}
+
+  Outputs:
+    apiGatewayRestApiId:
+      Value:
+        Ref: platformApiGW
+      Export:
+        Name: platform-${self:provider.stage}-apigw-restApiId
+    apiGatewayRestApiRootResourceId:
+      Value:
+        Fn::GetAtt:
+          - platformApiGW
+          - RootResourceId
+      Export:
+        Name: platform-${self:provider.stage}-apigw-rootResourceId
+
+plugins:
+  - serverless-sentry
+
+custom:
+  sentry:
+    dsn: ${file(./config.json):${self:provider.stage}.SENTRY_DSN}
